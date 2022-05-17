@@ -23,7 +23,7 @@ rj:
 	@docker run --rm -p 8080:8080 -p 50000:50000 -v JENKINS_HOME:/var/jenkins_home j
 
 rmj: j
-	@docker run --rm -it j /bin/bash
+	@docker run --user root --rm -it j /bin/bash
 
 # All the below should be executed only once
 

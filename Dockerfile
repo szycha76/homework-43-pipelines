@@ -5,5 +5,5 @@
 
 FROM jenkins/jenkins:latest
 USER root
-RUN apt-get update && apt-get install -y python3 doxygen && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y python3 doxygen graphviz && rm -rf /var/lib/apt/lists/*
 USER jenkins
