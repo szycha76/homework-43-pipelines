@@ -22,11 +22,18 @@ pipeline {
 
         stage('adjust config file') {
             steps {
-                // set folder "src" as INPUT
-                sh 'sed -e "s/^INPUT[ \\t].*$/INPUT = src/" Doxyfile -i'
+                sh '''
+                    # Keep the output clean
+                    set +x
 
-                // set only HTML output
-                sh 'sed -e "s/^GENERATE_\\(LATEX\\|RTF\\|MAN\\|XML\\|DOCBOOK\\)\\([ \\t]\\)=.*$/GENERATE_\\1\\2= NO/" Doxyfile -i'
+                    # Patch the Doxyfile as requested, make sure we do generate HTML (just in case)
+                    sed -e 's/^INPUT\\([ \\t]\\+\\)=.*$/INPUT\\1= src/;
+                        s/^GENERATE_\\(LATEX\\|RTF\\|MAN\\|XML\\|DOCBOOK\\)\\([ \\t]\\+\\)=.*$/GENERATE_\\1\\2= NO/;
+                        s/^GENERATE_HTML\\([ \\t]\\+\\)=.*$/GENERATE_HTML\\1= YES/' Doxyfile -i
+
+                    # Debug:
+                    cat Doxyfile | cut -d '#' -f1 | grep -vE ^$ | uniq
+                '''
 
             }
         }
@@ -37,5 +44,20 @@ pipeline {
                 sh "doxygen Doxyfile"
             }
         }
+
+        stage('pack generated output') {
+            steps {
+                // run doxygen using config file
+                sh "cd html; tar cvvf - . | gzip -9 > ../doc.tar.gz"
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: "doc.tar.gz", fingerprint: true
+        }
     }
 }
+
+// vim: sw=4 ts=4 et nu relativenumber
