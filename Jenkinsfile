@@ -78,7 +78,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: "doc.tar.gz", fingerprint: true
+            archiveArtifacts artifacts: "doc.tar.gz,doxygen.log", fingerprint: true
         }
     }
 }
